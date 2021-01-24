@@ -21,9 +21,17 @@ namespace VideoGadget
     /// </summary>
     public partial class MainWindow : Window
     {
+        private bool IsPlaying = false;
+
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void SwitchButton(ref bool btn)
+        {
+            if (btn) btn = false;
+            else btn = true;
         }
 
         private void Window_DragOver(object sender, DragEventArgs e)
@@ -53,6 +61,7 @@ namespace VideoGadget
                 Console.WriteLine(filename);
                 MainMadiaElement.Source = new Uri(filename);
                 MainMadiaElement.Play();
+                IsPlaying = true;
 
                 int count = 0;
 
@@ -80,6 +89,35 @@ namespace VideoGadget
         {
 
             MainMadiaElement.LoadedBehavior = MediaState.Manual;
+
+        }
+
+        private void MainMadiaElement_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            switch (e.ChangedButton)
+            {
+                case MouseButton.Left:
+                    Console.WriteLine("left");
+                    break;
+                case MouseButton.Middle:
+                    Console.WriteLine("middle");
+                    System.Windows.Application.Current.Shutdown();
+                    break;
+                case MouseButton.Right:
+                    Console.WriteLine("right");
+                    SwitchButton(ref IsPlaying);
+                    if (IsPlaying) MainMadiaElement.Play();
+                    else MainMadiaElement.Pause();
+                    break;
+                case MouseButton.XButton1:
+                    Console.WriteLine("buton1");
+                    break;
+                case MouseButton.XButton2:
+                    Console.WriteLine("button2");
+                    break;
+                default:
+                    break;
+            }
 
         }
     }
