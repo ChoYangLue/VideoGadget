@@ -22,6 +22,7 @@ namespace VideoGadget
     public partial class MainWindow : Window
     {
         private bool IsPlaying = false;
+        private Point mousePoint;
 
         public MainWindow()
         {
@@ -98,6 +99,8 @@ namespace VideoGadget
             {
                 case MouseButton.Left:
                     Console.WriteLine("left");
+                    System.Windows.Point position = e.GetPosition(this);
+                    mousePoint = new Point(position.X, position.Y);
                     break;
                 case MouseButton.Middle:
                     Console.WriteLine("middle");
@@ -120,5 +123,26 @@ namespace VideoGadget
             }
 
         }
+
+        private void MouseMoveHandler(object sender, MouseEventArgs e)
+        {
+            // 左クリック時のみ
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                System.Windows.Point position = e.GetPosition(this);
+                double pX = position.X;
+                double pY = position.Y;
+
+                this.Left += pX - mousePoint.X;
+                this.Top += pY - mousePoint.Y;
+            }
+
+        }
+
+
+
+
+
+
     }
 }
