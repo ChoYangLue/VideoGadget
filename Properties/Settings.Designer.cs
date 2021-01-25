@@ -22,5 +22,17 @@ namespace VideoGadget.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double VolumeSettings {
+            get {
+                return ((double)(this["VolumeSettings"]));
+            }
+            set {
+                this["VolumeSettings"] = value;
+            }
+        }
     }
 }

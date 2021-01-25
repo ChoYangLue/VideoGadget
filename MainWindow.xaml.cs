@@ -1,18 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace VideoGadget
 {
@@ -130,11 +130,16 @@ namespace VideoGadget
         /* Windowのロードと終了 */
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-
             MainMadiaElement.LoadedBehavior = MediaState.Manual;
 
+            MainMadiaElement.Volume = Properties.Settings.Default.VolumeSettings;
         }
 
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.VolumeSettings = MainMadiaElement.Volume;
+            Properties.Settings.Default.Save();
+        }
 
 
         private void MainMadiaElement_MediaEnded(object sender, RoutedEventArgs e)
