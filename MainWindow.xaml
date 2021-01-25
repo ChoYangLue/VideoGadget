@@ -10,9 +10,14 @@
         Loaded="Window_Loaded" 
         AllowDrop="True" 
         DragOver="Window_DragOver" 
-        Drop="Window_Drop" WindowStyle="None">
+        Drop="Window_Drop" WindowStyle="None"
+        ResizeMode="CanResizeWithGrip" AllowsTransparency="True">
     <Grid>
-        <MediaElement x:Name="MainMadiaElement" Margin="5,5,5,5" MouseDown="MainMadiaElement_MouseDown" MouseMove="MouseMoveHandler"/>
+        <MediaElement x:Name="MainMadiaElement" 
+                      Margin="1,1,1,1" 
+                      MouseDown="MainMadiaElement_MouseDown" 
+                      MouseMove="MouseMoveHandler" 
+                      MediaEnded="MainMadiaElement_MediaEnded"/>
 
     </Grid>
 </Window>

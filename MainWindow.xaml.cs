@@ -29,12 +29,7 @@ namespace VideoGadget
             InitializeComponent();
         }
 
-        private void SwitchButton(ref bool btn)
-        {
-            if (btn) btn = false;
-            else btn = true;
-        }
-
+        /* マウス操作とD＆D操作関連 */
         private void Window_DragOver(object sender, DragEventArgs e)
         {
             // マウスポインタを変更する。
@@ -86,13 +81,6 @@ namespace VideoGadget
             }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-
-            MainMadiaElement.LoadedBehavior = MediaState.Manual;
-
-        }
-
         private void MainMadiaElement_MouseDown(object sender, MouseButtonEventArgs e)
         {
             switch (e.ChangedButton)
@@ -139,8 +127,28 @@ namespace VideoGadget
 
         }
 
+        /* Windowのロードと終了 */
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+
+            MainMadiaElement.LoadedBehavior = MediaState.Manual;
+
+        }
 
 
+
+        private void MainMadiaElement_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            // 繰り返し再生
+            MainMadiaElement.Position = TimeSpan.Zero;
+            MainMadiaElement.Play();
+        }
+
+        private void SwitchButton(ref bool btn)
+        {
+            if (btn) btn = false;
+            else btn = true;
+        }
 
 
 
