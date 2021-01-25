@@ -112,8 +112,37 @@ namespace VideoGadget
 
         }
 
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            switch (e.ChangedButton)
+            {
+                case MouseButton.Left:
+                    Console.WriteLine("left");
+                    System.Windows.Point position = e.GetPosition(this);
+                    mousePoint = new Point(position.X, position.Y);
+                    break;
+                case MouseButton.Middle:
+                    Console.WriteLine("middle");
+                    System.Windows.Application.Current.Shutdown();
+                    break;
+                case MouseButton.Right:
+                    Console.WriteLine("right");
+                    break;
+                case MouseButton.XButton1:
+                    Console.WriteLine("buton1");
+                    break;
+                case MouseButton.XButton2:
+                    Console.WriteLine("button2");
+                    break;
+                default:
+                    break;
+            }
+        }
+
         private void MouseMoveHandler(object sender, MouseEventArgs e)
         {
+            if (VolumeSlider.Opacity == 1.0f) return;
+
             // 左クリック時のみ
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -133,6 +162,9 @@ namespace VideoGadget
             MainMadiaElement.LoadedBehavior = MediaState.Manual;
 
             MainMadiaElement.Volume = Properties.Settings.Default.VolumeSettings;
+
+            VolumeSlider.Value = (int)(MainMadiaElement.Volume*100);
+            VolumeSlider.Opacity = 0.0f;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -155,7 +187,22 @@ namespace VideoGadget
             else btn = true;
         }
 
+        /* ボリューム操作関連 */
+        private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            MainMadiaElement.Volume = (double)(e.NewValue/100);
+        }
 
+        private void VolumeSlider_MouseEnter(object sender, MouseEventArgs e)
+        {
+            VolumeSlider.Opacity = 1.0f;
+            Console.WriteLine("VolumeSlider on");
+        }
 
+        private void VolumeSlider_MouseLeave(object sender, MouseEventArgs e)
+        {
+            VolumeSlider.Opacity = 0.0f;
+            Console.WriteLine("VolumeSlider off");
+        }
     }
 }

@@ -9,6 +9,8 @@
         Height="450" Width="800" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
+        MouseDown="Window_MouseDown"
+        MouseMove="MouseMoveHandler" 
         AllowDrop="True" 
         DragOver="Window_DragOver" 
         Drop="Window_Drop" WindowStyle="None"
@@ -19,6 +21,22 @@
                       MouseDown="MainMadiaElement_MouseDown" 
                       MouseMove="MouseMoveHandler" 
                       MediaEnded="MainMadiaElement_MediaEnded"/>
+        <Slider x:Name="VolumeSlider"
+                TickPlacement="Both"
+                Foreground="Black"
+                Margin="0,100,10,100"
+                IsSnapToTickEnabled="False"
+                TickFrequency="10"
+                SmallChange="2"
+                LargeChange="5"
+                Minimum="0"
+                Maximum="100"
+                ValueChanged="VolumeSlider_ValueChanged"
+                MouseEnter="VolumeSlider_MouseEnter"
+                MouseLeave="VolumeSlider_MouseLeave"
+                Orientation="Vertical" 
+                HorizontalAlignment="Right" 
+                Width="30"/>
 
     </Grid>
 </Window>
