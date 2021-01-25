@@ -87,8 +87,8 @@ namespace VideoGadget
             {
                 case MouseButton.Left:
                     Console.WriteLine("left");
-                    System.Windows.Point position = e.GetPosition(this);
-                    mousePoint = new Point(position.X, position.Y);
+                    //System.Windows.Point position = e.GetPosition(this);
+                    //mousePoint = new Point(position.X, position.Y);
                     break;
                 case MouseButton.Middle:
                     Console.WriteLine("middle");

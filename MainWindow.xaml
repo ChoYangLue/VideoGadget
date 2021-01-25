@@ -19,7 +19,6 @@
         <MediaElement x:Name="MainMadiaElement" 
                       Margin="1,1,1,1" 
                       MouseDown="MainMadiaElement_MouseDown" 
-                      MouseMove="MouseMoveHandler" 
                       MediaEnded="MainMadiaElement_MediaEnded"/>
         <Slider x:Name="VolumeSlider"
                 TickPlacement="Both"
