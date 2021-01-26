@@ -22,6 +22,7 @@ namespace VideoGadget
     public partial class MainWindow : Window
     {
         private bool IsPlaying = false;
+        private bool IsSeekbarClick = false;
         private Point mousePoint;
 
         public MainWindow()
@@ -85,17 +86,8 @@ namespace VideoGadget
         {
             switch (e.ChangedButton)
             {
-                case MouseButton.Left:
-                    Console.WriteLine("left");
-                    //System.Windows.Point position = e.GetPosition(this);
-                    //mousePoint = new Point(position.X, position.Y);
-                    break;
-                case MouseButton.Middle:
-                    Console.WriteLine("middle");
-                    System.Windows.Application.Current.Shutdown();
-                    break;
                 case MouseButton.Right:
-                    Console.WriteLine("right");
+                    Console.WriteLine("right mme");
                     SwitchButton(ref IsPlaying);
                     if (IsPlaying) MainMadiaElement.Play();
                     else MainMadiaElement.Pause();
@@ -126,7 +118,7 @@ namespace VideoGadget
                     System.Windows.Application.Current.Shutdown();
                     break;
                 case MouseButton.Right:
-                    Console.WriteLine("right");
+                    Console.WriteLine("right wm");
                     break;
                 case MouseButton.XButton1:
                     Console.WriteLine("buton1");
@@ -142,6 +134,7 @@ namespace VideoGadget
         private void MouseMoveHandler(object sender, MouseEventArgs e)
         {
             if (VolumeSlider.Opacity == 1.0f) return;
+            if (SeekbarSlider.Opacity == 1.0f) return;
 
             // 左クリック時のみ
             if (e.LeftButton == MouseButtonState.Pressed)
@@ -165,6 +158,10 @@ namespace VideoGadget
 
             VolumeSlider.Value = (int)(MainMadiaElement.Volume*100);
             VolumeSlider.Opacity = 0.0f;
+
+            SeekbarSlider.Opacity = 0.0f;
+            SeekbarSlider.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonDown), true);
+            SeekbarSlider.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonUp), true);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -204,5 +201,54 @@ namespace VideoGadget
             VolumeSlider.Opacity = 0.0f;
             Console.WriteLine("VolumeSlider off");
         }
+
+
+        private void SeekbarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (SeekbarSlider.Opacity == 1.0f && IsSeekbarClick)
+            {
+                Console.WriteLine("Seekbar user control");
+
+                double totalSec = MainMadiaElement.NaturalDuration.TimeSpan.TotalSeconds;
+                double sliderValue = SeekbarSlider.Value;
+                int targetSec = (int)(sliderValue * totalSec / SeekbarSlider.Maximum);
+                TimeSpan ts = new TimeSpan(0, 0, 0, targetSec);
+                MainMadiaElement.Position = ts;
+            }
+            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
+            {
+                // 動画経過時間に合わせてスライダーを動かす
+                //_elapsedSec += _timerInterval;
+                //double totalSec = MainMadiaElement.NaturalDuration.TimeSpan.TotalSeconds;
+                //SeekbarSlider.Value = _elapsedSec / totalSec * SeekbarSlider.Maximum;
+            }
+        }
+
+        private void SeekbarSlider_MouseEnter(object sender, MouseEventArgs e)
+        {
+            SeekbarSlider.Opacity = 1.0f;
+            Console.WriteLine("SeekbarSlider on");
+        }
+
+        private void SeekbarSlider_MouseLeave(object sender, MouseEventArgs e)
+        {
+            SeekbarSlider.Opacity = 0.0f;
+            Console.WriteLine("SeekbarSlider off");
+        }
+
+        private void Slider_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            IsSeekbarClick = false;
+            Console.WriteLine("Seekbar user control up");
+        }
+
+        private void Slider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            IsSeekbarClick = true;
+            Console.WriteLine("Seekbar user control down");
+        }
+
+
+
     }
 }

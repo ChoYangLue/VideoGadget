@@ -36,6 +36,14 @@
                 Orientation="Vertical" 
                 HorizontalAlignment="Right" 
                 Width="30"/>
+        <Slider x:Name="SeekbarSlider" 
+                Margin="10,0,10,10" Height="18" 
+                VerticalAlignment="Bottom"
+                Minimum="0"
+                Maximum="100"
+                ValueChanged="SeekbarSlider_ValueChanged"
+                MouseEnter="SeekbarSlider_MouseEnter"
+                MouseLeave="SeekbarSlider_MouseLeave"/>
 
     </Grid>
 </Window>
