@@ -265,12 +265,14 @@ namespace VideoGadget
         private void Slider_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = false;
+            MainMadiaElement.Play();
             Console.WriteLine("Seekbar user control up");
         }
 
         private void Slider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = true;
+            MainMadiaElement.Pause();
             Console.WriteLine("Seekbar user control down");
         }
 
