@@ -11,10 +11,11 @@
         Closing="Window_Closing"
         MouseDown="Window_MouseDown"
         MouseMove="MouseMoveHandler" 
+        KeyDown="Window_KeyDown"
         AllowDrop="True" 
         DragOver="Window_DragOver" 
         Drop="Window_Drop" WindowStyle="None"
-        ResizeMode="CanResizeWithGrip" AllowsTransparency="True">
+        ResizeMode="CanResizeWithGrip" AllowsTransparency="True" Background="#FF989898">
     <Grid>
         <MediaElement x:Name="MainMadiaElement" 
                       Margin="1,1,1,1" 

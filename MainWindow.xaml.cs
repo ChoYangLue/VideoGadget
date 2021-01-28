@@ -30,7 +30,7 @@ namespace VideoGadget
             InitializeComponent();
         }
 
-        /* マウス操作とD＆D操作関連 */
+        /* マウス操作とD＆D操作とキーダウン操作関連 */
         private void Window_DragOver(object sender, DragEventArgs e)
         {
             // マウスポインタを変更する。
@@ -149,6 +149,19 @@ namespace VideoGadget
 
         }
 
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            // SpaceキーでWindow最小化
+            if (e.Key == Key.Space)
+            {
+                if (this.WindowState != WindowState.Minimized)
+                {
+                    this.WindowState = WindowState.Minimized;
+                }
+            }
+
+        }
+
         /* Windowのロードと終了 */
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -202,7 +215,7 @@ namespace VideoGadget
             Console.WriteLine("VolumeSlider off");
         }
 
-
+        /* シークバー操作関連 */
         private void SeekbarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (SeekbarSlider.Opacity == 1.0f && IsSeekbarClick)
