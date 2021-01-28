@@ -162,6 +162,19 @@ namespace VideoGadget
 
         }
 
+        private void Window_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // ダブルクリックでWindowの最大化と最小化を切り替える
+            if (this.WindowState != WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Maximized;
+            }
+            else
+            {
+                this.WindowState = WindowState.Normal;
+            }
+        }
+
         /* Windowのロードと終了 */
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
