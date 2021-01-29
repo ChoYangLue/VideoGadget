@@ -19,10 +19,10 @@
         ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
         Background="#FF989898">
     <Grid>
-        <MediaElement x:Name="MainMadiaElement" 
-                      Margin="1,1,1,1" 
-                      MouseDown="MainMadiaElement_MouseDown" 
-                      MediaEnded="MainMadiaElement_MediaEnded"/>
+        <ContentControl 
+            x:Name="ControlContainer"
+            Margin="1,1,1,1" 
+            MouseDown="MainMadiaElement_MouseDown"/>
         <Slider x:Name="VolumeSlider"
                 TickPlacement="Both"
                 Foreground="Black"

@@ -2,7 +2,7 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="VideoGadget.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="VolumeSettings" Type="System.Double" Scope="User">
+    <Setting Name="VolumeSettings" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>

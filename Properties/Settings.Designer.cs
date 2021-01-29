@@ -26,9 +26,9 @@ namespace VideoGadget.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public double VolumeSettings {
+        public int VolumeSettings {
             get {
-                return ((double)(this["VolumeSettings"]));
+                return ((int)(this["VolumeSettings"]));
             }
             set {
                 this["VolumeSettings"] = value;
