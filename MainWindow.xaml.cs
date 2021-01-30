@@ -1,15 +1,6 @@
 ﻿using System;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,6 +8,7 @@ using System.Reflection;
 using System.IO;
 using Vlc.DotNet.Wpf;
 using Vlc.DotNet.Core;
+using System.Windows.Threading;
 
 namespace VideoGadget
 {
@@ -32,6 +24,9 @@ namespace VideoGadget
         private readonly DirectoryInfo vlcLibDirectory;
         private VlcControl control;
 
+        private DispatcherTimer SeekBarUpdateThread;
+        private bool DisplaySizeSetFlag = false;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -40,6 +35,13 @@ namespace VideoGadget
             var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
             // Default installation path of VideoLAN.LibVLC.Windows
             vlcLibDirectory = new DirectoryInfo(System.IO.Path.Combine(currentDirectory, "libvlc", IntPtr.Size == 4 ? "win-x86" : "win-x64"));
+        }
+
+        private void printf(string txt)
+        {
+#if DEBUG
+            System.Diagnostics.Debug.WriteLine(txt);
+#endif
         }
 
         /* マウス操作とD＆D操作とキーダウン操作関連 */
@@ -67,7 +69,19 @@ namespace VideoGadget
                 {
                     filename = filename + t;
                 }
-                System.Diagnostics.Debug.WriteLine(filename);
+                printf(filename);
+
+                control?.Dispose();
+                control = new VlcControl();
+                ControlContainer.Content = this.control;
+                control.SourceProvider.CreatePlayer(vlcLibDirectory);
+
+                // This can also be called before EndInit
+                this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
+                {
+                    string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
+                    printf(message);
+                };
 
                 string[] @params = null;
                 @params = new string[] { "input-repeat=65535" }; // 繰り返し再生
@@ -79,9 +93,35 @@ namespace VideoGadget
 
                 IsPlaying = true;
 
+                DisplaySizeSetFlag = false;
+
+                SeekBarUpdateThread = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(500)
+                };
+                SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
+
+                SeekBarUpdateThread.Start();
+            }
+        }
+
+        private void SeekBarUpdateThread_Tick(object sender, EventArgs e)
+        {
+            if(control.SourceProvider.VideoSource != null && DisplaySizeSetFlag == false)
+            {
                 Application.Current.MainWindow.Width = control.SourceProvider.VideoSource.Width;
                 Application.Current.MainWindow.Height = control.SourceProvider.VideoSource.Height;
+
+                DisplaySizeSetFlag = true;
             }
+
+            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
+            {
+                // 動画経過時間に合わせてスライダーを動かす
+                double totalSec = control.SourceProvider.MediaPlayer.Length;
+                SeekbarSlider.Value = control.SourceProvider.MediaPlayer.Time / totalSec * SeekbarSlider.Maximum;
+            }
+
         }
 
         private void MainMadiaElement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -89,16 +129,16 @@ namespace VideoGadget
             switch (e.ChangedButton)
             {
                 case MouseButton.Right:
-                    System.Diagnostics.Debug.WriteLine("right mme");
+                    printf("right mme");
                     SwitchButton(ref IsPlaying);
                     if (IsPlaying) control.SourceProvider.MediaPlayer.Play();
                     else control.SourceProvider.MediaPlayer.Pause();
                     break;
                 case MouseButton.XButton1:
-                    System.Diagnostics.Debug.WriteLine("buton1");
+                    printf("buton1");
                     break;
                 case MouseButton.XButton2:
-                    System.Diagnostics.Debug.WriteLine("button2");
+                    printf("button2");
                     break;
                 default:
                     break;
@@ -111,22 +151,22 @@ namespace VideoGadget
             switch (e.ChangedButton)
             {
                 case MouseButton.Left:
-                    System.Diagnostics.Debug.WriteLine("left");
+                    printf("left");
                     System.Windows.Point position = e.GetPosition(this);
                     mousePoint = new Point(position.X, position.Y);
                     break;
                 case MouseButton.Middle:
-                    System.Diagnostics.Debug.WriteLine("middle");
+                    printf("middle");
                     System.Windows.Application.Current.Shutdown();
                     break;
                 case MouseButton.Right:
-                    System.Diagnostics.Debug.WriteLine("right wm");
+                    printf("right wm");
                     break;
                 case MouseButton.XButton1:
-                    System.Diagnostics.Debug.WriteLine("buton1");
+                    printf("buton1");
                     break;
                 case MouseButton.XButton2:
-                    System.Diagnostics.Debug.WriteLine("button2");
+                    printf("button2");
                     break;
                 default:
                     break;
@@ -186,21 +226,6 @@ namespace VideoGadget
             SeekbarSlider.Opacity = 0.0f;
             SeekbarSlider.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonDown), true);
             SeekbarSlider.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonUp), true);
-
-
-            this.control?.Dispose();
-            this.control = new VlcControl();
-            this.ControlContainer.Content = this.control;
-            this.control.SourceProvider.CreatePlayer(vlcLibDirectory);
-
-            // This can also be called before EndInit
-            this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
-            {
-                string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
-                System.Diagnostics.Debug.WriteLine(message);
-            };
-
-
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -208,7 +233,7 @@ namespace VideoGadget
             Properties.Settings.Default.VolumeSettings = control.SourceProvider.MediaPlayer.Audio.Volume;
             Properties.Settings.Default.Save();
 
-            control.Dispose();
+            control?.Dispose();
             control = null;
         }
 
@@ -228,13 +253,13 @@ namespace VideoGadget
         private void VolumeSlider_MouseEnter(object sender, MouseEventArgs e)
         {
             VolumeSlider.Opacity = 1.0f;
-            System.Diagnostics.Debug.WriteLine("VolumeSlider on");
+            printf("VolumeSlider on");
         }
 
         private void VolumeSlider_MouseLeave(object sender, MouseEventArgs e)
         {
             VolumeSlider.Opacity = 0.0f;
-            System.Diagnostics.Debug.WriteLine("VolumeSlider off");
+            printf("VolumeSlider off");
         }
 
         /* シークバー操作関連 */
@@ -242,47 +267,41 @@ namespace VideoGadget
         {
             if (SeekbarSlider.Opacity == 1.0f && IsSeekbarClick)
             {
-                System.Diagnostics.Debug.WriteLine("Seekbar user control");
+                printf("Seekbar user control");
 
-                double totalSec = 0;//MainMadiaElement.NaturalDuration.TimeSpan.TotalSeconds;
+                double totalSec = control.SourceProvider.MediaPlayer.Length; 
                 double sliderValue = SeekbarSlider.Value;
-                int targetSec = (int)(sliderValue * totalSec / SeekbarSlider.Maximum);
-                TimeSpan ts = new TimeSpan(0, 0, 0, targetSec);
-                //MainMadiaElement.Position = ts;
+                long targetSec = (long)(sliderValue * totalSec / SeekbarSlider.Maximum);
+                control.SourceProvider.MediaPlayer.Time = targetSec; 
             }
-            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
-            {
-                // 動画経過時間に合わせてスライダーを動かす
-                //_elapsedSec += _timerInterval;
-                //double totalSec = MainMadiaElement.NaturalDuration.TimeSpan.TotalSeconds;
-                //SeekbarSlider.Value = _elapsedSec / totalSec * SeekbarSlider.Maximum;
-            }
+            
         }
 
         private void SeekbarSlider_MouseEnter(object sender, MouseEventArgs e)
         {
             SeekbarSlider.Opacity = 1.0f;
-            System.Diagnostics.Debug.WriteLine("SeekbarSlider on");
+            printf("SeekbarSlider on");
         }
 
         private void SeekbarSlider_MouseLeave(object sender, MouseEventArgs e)
         {
             SeekbarSlider.Opacity = 0.0f;
-            System.Diagnostics.Debug.WriteLine("SeekbarSlider off");
+            printf("SeekbarSlider off");
         }
 
         private void Slider_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = false;
             control.SourceProvider.MediaPlayer.Play();
-            System.Diagnostics.Debug.WriteLine("Seekbar user control up");
+            printf("Seekbar user control up");
         }
 
         private void Slider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = true;
             control.SourceProvider.MediaPlayer.Pause();
-            System.Diagnostics.Debug.WriteLine("Seekbar user control down");
+            printf(control.SourceProvider.VideoSource.Width.ToString() );
+            printf("Seekbar user control down");
         }
 
 
