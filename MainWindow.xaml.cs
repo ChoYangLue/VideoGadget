@@ -27,6 +27,8 @@ namespace VideoGadget
         private DispatcherTimer SeekBarUpdateThread;
         private bool DisplaySizeSetFlag = false;
 
+        private int SeekbarUpdateInterval = 500;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -97,7 +99,7 @@ namespace VideoGadget
 
                 SeekBarUpdateThread = new DispatcherTimer
                 {
-                    Interval = TimeSpan.FromMilliseconds(500)
+                    Interval = TimeSpan.FromMilliseconds(SeekbarUpdateInterval)
                 };
                 SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
 
@@ -107,6 +109,7 @@ namespace VideoGadget
 
         private void SeekBarUpdateThread_Tick(object sender, EventArgs e)
         {
+            // ウィンドウのサイズを動画のサイズにする
             if(control.SourceProvider.VideoSource != null && DisplaySizeSetFlag == false)
             {
                 Application.Current.MainWindow.Width = control.SourceProvider.VideoSource.Width;
@@ -292,15 +295,26 @@ namespace VideoGadget
         private void Slider_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = false;
-            control.SourceProvider.MediaPlayer.Play();
+
+            if (!IsPlaying) return;
+
+            SwitchButton(ref IsPlaying);
+            if (IsPlaying) control.SourceProvider.MediaPlayer.Play();
+            else control.SourceProvider.MediaPlayer.Pause();
+
             printf("Seekbar user control up");
         }
 
         private void Slider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             IsSeekbarClick = true;
-            control.SourceProvider.MediaPlayer.Pause();
-            printf(control.SourceProvider.VideoSource.Width.ToString() );
+
+            if (!IsPlaying) return;
+
+            SwitchButton(ref IsPlaying);
+            if (IsPlaying) control.SourceProvider.MediaPlayer.Play();
+            else control.SourceProvider.MediaPlayer.Pause();
+
             printf("Seekbar user control down");
         }
 
