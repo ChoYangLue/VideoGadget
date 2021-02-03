@@ -214,7 +214,7 @@ namespace VideoGadget
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            Properties.Settings.Default.VolumeSettings = control.SourceProvider.MediaPlayer.Audio.Volume;
+            Properties.Settings.Default.VolumeSettings = (int)VolumeSlider.Value;
             Properties.Settings.Default.Save();
 
             control?.Dispose();
@@ -319,6 +319,8 @@ namespace VideoGadget
 
         private void UpdateSeekBar()
         {
+            if (control == null) return;
+
             // 動画経過時間に合わせてスライダーを動かす
             double totalSec = control.SourceProvider.MediaPlayer.Length;
             SeekbarSlider.Value = control.SourceProvider.MediaPlayer.Time / totalSec * SeekbarSlider.Maximum;
