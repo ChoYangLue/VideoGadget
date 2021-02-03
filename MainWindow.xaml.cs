@@ -18,6 +18,7 @@ namespace VideoGadget
     public partial class MainWindow : Window
     {
         private bool IsPlaying = false;
+        private bool IsPlayed = false;
         private bool IsSeekbarClick = false;
         private Point mousePoint;
 
@@ -105,26 +106,6 @@ namespace VideoGadget
 
                 SeekBarUpdateThread.Start();
             }
-        }
-
-        private void SeekBarUpdateThread_Tick(object sender, EventArgs e)
-        {
-            // ウィンドウのサイズを動画のサイズにする
-            if(control.SourceProvider.VideoSource != null && DisplaySizeSetFlag == false)
-            {
-                Application.Current.MainWindow.Width = control.SourceProvider.VideoSource.Width;
-                Application.Current.MainWindow.Height = control.SourceProvider.VideoSource.Height;
-
-                DisplaySizeSetFlag = true;
-            }
-
-            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
-            {
-                // 動画経過時間に合わせてスライダーを動かす
-                double totalSec = control.SourceProvider.MediaPlayer.Length;
-                SeekbarSlider.Value = control.SourceProvider.MediaPlayer.Time / totalSec * SeekbarSlider.Maximum;
-            }
-
         }
 
         private void MainMadiaElement_MouseDown(object sender, MouseButtonEventArgs e)
@@ -282,6 +263,7 @@ namespace VideoGadget
 
         private void SeekbarSlider_MouseEnter(object sender, MouseEventArgs e)
         {
+            UpdateSeekBar();
             SeekbarSlider.Opacity = 1.0f;
             printf("SeekbarSlider on");
         }
@@ -296,12 +278,12 @@ namespace VideoGadget
         {
             IsSeekbarClick = false;
 
-            if (!IsPlaying) return;
-
-            SwitchButton(ref IsPlaying);
-            if (IsPlaying) control.SourceProvider.MediaPlayer.Play();
-            else control.SourceProvider.MediaPlayer.Pause();
-
+            if (IsPlayed)
+            {
+                // 再生を再開
+                control.SourceProvider.MediaPlayer.Play();
+                IsPlaying = true;
+            }
             printf("Seekbar user control up");
         }
 
@@ -309,13 +291,37 @@ namespace VideoGadget
         {
             IsSeekbarClick = true;
 
-            if (!IsPlaying) return;
-
-            SwitchButton(ref IsPlaying);
-            if (IsPlaying) control.SourceProvider.MediaPlayer.Play();
-            else control.SourceProvider.MediaPlayer.Pause();
+            IsPlayed = IsPlaying;
+            // 必ず再生を一時停止させる
+            control.SourceProvider.MediaPlayer.Pause();
+            IsPlaying = false;
 
             printf("Seekbar user control down");
+        }
+
+        private void SeekBarUpdateThread_Tick(object sender, EventArgs e)
+        {
+            // ウィンドウのサイズを動画のサイズにする
+            if (control.SourceProvider.VideoSource != null && DisplaySizeSetFlag == false)
+            {
+                Application.Current.MainWindow.Width = control.SourceProvider.VideoSource.Width;
+                Application.Current.MainWindow.Height = control.SourceProvider.VideoSource.Height;
+
+                DisplaySizeSetFlag = true;
+            }
+
+            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
+            {
+                UpdateSeekBar();
+            }
+
+        }
+
+        private void UpdateSeekBar()
+        {
+            // 動画経過時間に合わせてスライダーを動かす
+            double totalSec = control.SourceProvider.MediaPlayer.Length;
+            SeekbarSlider.Value = control.SourceProvider.MediaPlayer.Time / totalSec * SeekbarSlider.Maximum;
         }
 
 
