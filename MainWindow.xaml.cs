@@ -9,6 +9,7 @@ using System.IO;
 using Vlc.DotNet.Wpf;
 using Vlc.DotNet.Core;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace VideoGadget
 {
@@ -64,8 +65,8 @@ namespace VideoGadget
             string[] @params = null;
             @params = new string[] { "input-repeat=65535" }; // 繰り返し再生
 
-            FileInfo fi = new FileInfo(filename);
-            control.SourceProvider.MediaPlayer.SetMedia(fi, @params);
+            FileInfo file_info = new FileInfo(filename);
+            control.SourceProvider.MediaPlayer.SetMedia(file_info, @params);
             control.SourceProvider.MediaPlayer.Play();
             control.SourceProvider.MediaPlayer.Audio.Volume = (int)VolumeSlider.Value;
 
@@ -80,6 +81,8 @@ namespace VideoGadget
             SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
 
             SeekBarUpdateThread.Start();
+
+            this.Title = filename;
         }
 
         /* マウス操作とD＆D操作とキーダウン操作関連 */
@@ -189,6 +192,37 @@ namespace VideoGadget
                 {
                     this.WindowState = WindowState.Minimized;
                 }
+            }
+            else if (e.Key == Key.P)
+            {
+                DateTime dt = DateTime.Now;
+                string file_name = "save_" + dt.Year + dt.Month + dt.Day + dt.Hour + dt.Minute + dt.Second + ".png";
+
+                FileInfo file_info = new FileInfo(Directory.GetCurrentDirectory() + @"\" + file_name);
+                control.SourceProvider.MediaPlayer.TakeSnapshot(file_info);
+
+                /*
+                // ファイル保存ダイアログを生成します。
+                var dialog = new SaveFileDialog();
+
+                // フィルターを設定します。
+                // この設定は任意です。
+                dialog.Filter = "テキストファイル(*.txt)|*.txt|CSVファイル(*.csv)|*.csv|全てのファイル(*.*)|*.*";
+
+                // ファイル保存ダイアログを表示します。
+                var result = dialog.ShowDialog() ?? false;
+
+                // 保存ボタン以外が押下された場合
+                if (!result)
+                {
+                    // 終了します。
+                    return;
+                }
+
+                // ファイル保存ダイアログで選択されたファイルパス名を表示します。
+                MessageBox.Show(dialog.FileName);
+                */
+
             }
 
         }
