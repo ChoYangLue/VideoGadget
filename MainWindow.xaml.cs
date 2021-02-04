@@ -47,6 +47,41 @@ namespace VideoGadget
 #endif
         }
 
+        private void LoadLocalVideo(string filename)
+        {
+            control?.Dispose();
+            control = new VlcControl();
+            ControlContainer.Content = this.control;
+            control.SourceProvider.CreatePlayer(vlcLibDirectory);
+
+            // This can also be called before EndInit
+            this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
+            {
+                string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
+                printf(message);
+            };
+
+            string[] @params = null;
+            @params = new string[] { "input-repeat=65535" }; // 繰り返し再生
+
+            FileInfo fi = new FileInfo(filename);
+            control.SourceProvider.MediaPlayer.SetMedia(fi, @params);
+            control.SourceProvider.MediaPlayer.Play();
+            control.SourceProvider.MediaPlayer.Audio.Volume = (int)VolumeSlider.Value;
+
+            IsPlaying = true;
+
+            DisplaySizeSetFlag = false;
+
+            SeekBarUpdateThread = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(SeekbarUpdateInterval)
+            };
+            SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
+
+            SeekBarUpdateThread.Start();
+        }
+
         /* マウス操作とD＆D操作とキーダウン操作関連 */
         private void Window_DragOver(object sender, DragEventArgs e)
         {
@@ -74,37 +109,7 @@ namespace VideoGadget
                 }
                 printf(filename);
 
-                control?.Dispose();
-                control = new VlcControl();
-                ControlContainer.Content = this.control;
-                control.SourceProvider.CreatePlayer(vlcLibDirectory);
-
-                // This can also be called before EndInit
-                this.control.SourceProvider.MediaPlayer.Log += (_, args) =>
-                {
-                    string message = $"libVlc : {args.Level} {args.Message} @ {args.Module}";
-                    printf(message);
-                };
-
-                string[] @params = null;
-                @params = new string[] { "input-repeat=65535" }; // 繰り返し再生
-
-                FileInfo fi = new FileInfo(filename);
-                control.SourceProvider.MediaPlayer.SetMedia(fi, @params);
-                control.SourceProvider.MediaPlayer.Play();
-                control.SourceProvider.MediaPlayer.Audio.Volume = (int)VolumeSlider.Value;
-
-                IsPlaying = true;
-
-                DisplaySizeSetFlag = false;
-
-                SeekBarUpdateThread = new DispatcherTimer
-                {
-                    Interval = TimeSpan.FromMilliseconds(SeekbarUpdateInterval)
-                };
-                SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
-
-                SeekBarUpdateThread.Start();
+                LoadLocalVideo(filename);
             }
         }
 
@@ -210,6 +215,12 @@ namespace VideoGadget
             SeekbarSlider.Opacity = 0.0f;
             SeekbarSlider.AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonDown), true);
             SeekbarSlider.AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(Slider_MouseLeftButtonUp), true);
+
+            string[] argv = Environment.GetCommandLineArgs();
+            if (argv.Length == 2)
+            {
+                LoadLocalVideo(argv[1]);
+            }
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
