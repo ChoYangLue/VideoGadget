@@ -30,6 +30,9 @@ namespace VideoGadget
         private bool DisplaySizeSetFlag = false;
 
         private int SeekbarUpdateInterval = 500;
+        private string file_path = "";
+
+        private VideoTrackInfo video_track_info = null;
 
         public MainWindow()
         {
@@ -83,6 +86,11 @@ namespace VideoGadget
             SeekBarUpdateThread.Start();
 
             this.Title = filename;
+
+            file_path = filename;
+
+            //video_track_info = new VideoTrackInfo(filename, 0, control.SourceProvider.MediaPlayer.Length);
+
         }
 
         /* マウス操作とD＆D操作とキーダウン操作関連 */
@@ -185,9 +193,10 @@ namespace VideoGadget
 
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            // SpaceキーでWindow最小化
             if (e.Key == Key.Space)
             {
+                // SpaceキーでWindow最小化
+
                 if (this.WindowState != WindowState.Minimized)
                 {
                     this.WindowState = WindowState.Minimized;
@@ -195,6 +204,8 @@ namespace VideoGadget
             }
             else if (e.Key == Key.P)
             {
+                // Pキーで画像キャプチャ
+
                 DateTime dt = DateTime.Now;
                 string file_name = "save_" + dt.Year + dt.Month + dt.Day + dt.Hour + dt.Minute + dt.Second + ".png";
 
@@ -223,6 +234,16 @@ namespace VideoGadget
                 MessageBox.Show(dialog.FileName);
                 */
 
+            }
+            else if (e.Key == Key.F)
+            {
+                // Fキーで分割
+                //var inf = new VideoTrackInfo(file_path, control.SourceProvider.MediaPlayer.Time, control.SourceProvider.MediaPlayer.Length);
+                video_track_info.SplitVideo(control.SourceProvider.MediaPlayer.Time);
+                video_track_info.PrintAllChunk();
+
+                //inf.PrintAllChunk();
+                //inf.Convert();
             }
 
         }
@@ -351,6 +372,8 @@ namespace VideoGadget
             {
                 Application.Current.MainWindow.Width = control.SourceProvider.VideoSource.Width;
                 Application.Current.MainWindow.Height = control.SourceProvider.VideoSource.Height;
+
+                video_track_info = new VideoTrackInfo(file_path, 0, control.SourceProvider.MediaPlayer.Length);
 
                 DisplaySizeSetFlag = true;
             }

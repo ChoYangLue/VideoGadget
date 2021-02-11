@@ -33,4 +33,12 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Lib\" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="cd $(ProjectDir)&#xD;&#xA;xcopy Lib $(OutDir)Lib /D/E/C/I/H/Y" />
+  </Target>
+
 </Project>
