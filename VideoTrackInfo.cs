@@ -106,10 +106,16 @@ namespace VideoGadget
             m_duration = new_duration;
         }
 
-        public void Convert()
+        public void Convert(string out_file, int track_no = 0)
         {
+
+            string new_name = System.IO.Path.GetFileNameWithoutExtension(out_file) + "_track" + track_no.ToString() + System.IO.Path.GetExtension(out_file);
+            string new_path = System.IO.Path.GetDirectoryName(out_file) + @"\" + new_name;
+
+            printf(new_path);
+
             //string option = "ffmpeg -ss 02:55:38 -i input.mp4 -ss 0 -t 03:44:08 -c:v copy -c:a copy -async 1 output.mp4";
-            string option = " -ss "+ FormatSecond2hhmmss(m_start_time) + " -i "+ m_file + " -ss 0 -t " + FormatSecond2hhmmss(m_duration) + " -c:v copy -c:a copy -async 1 output.mp4";
+            string option = " -ss "+ FormatSecond2hhmmss(m_start_time) + " -i "+ m_file + " -ss 0 -t " + FormatSecond2hhmmss(m_duration) + " -c:v copy -c:a copy -async 1 "+ new_path;
 
             /*
                 -ss 開始時刻までシーク
@@ -126,7 +132,7 @@ namespace VideoGadget
 
             if (m_child == null) return;
 
-            m_child.Convert();
+            m_child.Convert(out_file, track_no+1);
         }
 
         public string FormatSecond2hhmmss(int seconds)

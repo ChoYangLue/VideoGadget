@@ -245,6 +245,10 @@ namespace VideoGadget
                 //inf.PrintAllChunk();
                 //inf.Convert();
             }
+            else if (e.Key == Key.O)
+            {
+                video_track_info.Convert(file_path);
+            }
 
         }
 
