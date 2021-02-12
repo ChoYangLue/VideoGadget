@@ -238,15 +238,13 @@ namespace VideoGadget
             else if (e.Key == Key.F)
             {
                 // Fキーで分割
-                //var inf = new VideoTrackInfo(file_path, control.SourceProvider.MediaPlayer.Time, control.SourceProvider.MediaPlayer.Length);
                 video_track_info.SplitVideo(control.SourceProvider.MediaPlayer.Time);
                 video_track_info.PrintAllChunk();
 
-                //inf.PrintAllChunk();
-                //inf.Convert();
             }
             else if (e.Key == Key.O)
             {
+                // OキーでExport
                 video_track_info.Convert(file_path);
             }
 
