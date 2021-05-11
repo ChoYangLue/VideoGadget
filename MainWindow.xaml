@@ -3,27 +3,28 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VideoGadget"
+        xmlns:local="clr-namespace:VideoGadget" xmlns:wpf="clr-namespace:LibVLCSharp.WPF;assembly=LibVLCSharp.WPF"
         mc:Ignorable="d"
         Title="VideoGadget" 
         Height="450" Width="800" 
         Loaded="Window_Loaded" 
         Closing="Window_Closing"
-        MouseDown="Window_MouseDown"
-        MouseMove="MouseMoveHandler" 
-        KeyDown="Window_KeyDown"
-        MouseDoubleClick="Window_MouseDoubleClick"
         AllowDrop="True" 
         DragOver="Window_DragOver" 
-        Drop="Window_Drop" WindowStyle="None"
+        WindowStyle="None"
         ResizeMode="CanResizeWithGrip" AllowsTransparency="True" 
         Background="#FF989898">
     <Grid>
-        <ContentControl 
-            x:Name="ControlContainer"
-            Margin="1,1,1,1" 
-            MouseDown="MainMadiaElement_MouseDown"/>
-        <Slider x:Name="VolumeSlider"
+        <wpf:VideoView x:Name="ControlContainer"
+                       Margin="1,1,1,1">
+            <ContentControl MouseDoubleClick="Window_MouseDoubleClick">
+                <Grid Background="#01000000"
+                  MouseDown="Window_MouseDown"
+                  MouseMove="MouseMoveHandler" 
+                  KeyDown="Window_KeyDown"
+                  Drop="Window_Drop" 
+                  AllowDrop="True">
+                <Slider x:Name="VolumeSlider"
                 TickPlacement="Both"
                 Foreground="Black"
                 Margin="0,100,10,100"
@@ -39,7 +40,7 @@
                 Orientation="Vertical" 
                 HorizontalAlignment="Right" 
                 Width="30"/>
-        <Slider x:Name="SeekbarSlider" 
+                <Slider x:Name="SeekbarSlider" 
                 Margin="10,0,10,10" Height="18" 
                 VerticalAlignment="Bottom"
                 Minimum="0"
@@ -47,6 +48,9 @@
                 ValueChanged="SeekbarSlider_ValueChanged"
                 MouseEnter="SeekbarSlider_MouseEnter"
                 MouseLeave="SeekbarSlider_MouseLeave"/>
-
+            </Grid>
+            </ContentControl>
+        </wpf:VideoView>
+        
     </Grid>
 </Window>

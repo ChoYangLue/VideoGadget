@@ -5,6 +5,7 @@
 * WPF
 * .NET Core 3.1
 * VisualStudio2019
+* LibVLCSharp
 
 # g‚¢•û
 | “®‰æ‚ğD&D | “®‰æ‚ğÄ¶ |

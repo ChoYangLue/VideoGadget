@@ -12,10 +12,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.12" />
-    <PackageReference Include="Vlc.DotNet.Core" Version="3.1.0" />
-    <PackageReference Include="Vlc.DotNet.Core.Interops" Version="3.1.0" />
-    <PackageReference Include="Vlc.DotNet.Wpf" Version="3.1.0" />
+    <PackageReference Include="LibVLCSharp" Version="3.5.0" />
+    <PackageReference Include="LibVLCSharp.WPF" Version="3.5.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,7 +36,7 @@
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="cd $(ProjectDir)&#xD;&#xA;xcopy Lib $(OutDir)Lib /D/E/C/I/H/Y" />
+    <Exec Command="cd $(ProjectDir)&#xD;&#xA;xcopy Lib $(OutDir)Lib /D/E/C/I/H/Y&#xD;&#xA;xcopy Lib\libvlc $(OutDir)libvlc /D/E/C/I/H/Y&#xD;&#xA;del $(OutDir)Lib\libvlc /Q" />
   </Target>
 
 </Project>
