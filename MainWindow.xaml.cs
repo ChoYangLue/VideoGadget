@@ -17,27 +17,27 @@ namespace VideoGadget
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool IsPlaying = false;
-        private bool IsPlayed = false;
-        private bool IsSeekbarClick = false;
-        private Point mousePoint;
+        private bool m_is_playing = false;
+        private bool m_is_played = false;
+        private bool m_is_seekbar_click = false;
+        private Point m_mouse_point;
 
-        LibVLC _libVLC;
-        MediaPlayer _mediaPlayer;
+        LibVLC m_lib_vlc;
+        MediaPlayer m_media_player;
 
         private DispatcherTimer SeekBarUpdateThread;
-        private bool DisplaySizeSetFlag = false;
+        private bool m_display_sizeset_flag = false;
 
-        private int SeekbarUpdateInterval = 500;
-        private string file_path = "";
+        private int m_seekbar_update_interval = 250;
+        private string m_file_path = "";
 
-        private VideoTrackInfo video_track_info = null;
+        private VideoTrackInfo m_video_track_info = null;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            var currentAssembly = Assembly.GetEntryAssembly();
+            //var currentAssembly = Assembly.GetEntryAssembly();
             //var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
 
             Core.Initialize();
@@ -54,21 +54,21 @@ namespace VideoGadget
         {
 
             // "input-repeat=65535" // 繰り返し再生
-            _libVLC = new LibVLC("--input-repeat=65545");
-            _mediaPlayer = new MediaPlayer(_libVLC);
+            m_lib_vlc = new LibVLC("--input-repeat=65545");
+            m_media_player = new MediaPlayer(m_lib_vlc);
 
-            ControlContainer.MediaPlayer = _mediaPlayer;
+            ControlContainer.MediaPlayer = m_media_player;
 
-            _mediaPlayer.Play(new Media(_libVLC, filename));
-            _mediaPlayer.Volume = (int)VolumeSlider.Value;
+            m_media_player.Play(new Media(m_lib_vlc, filename));
+            m_media_player.Volume = (int)VolumeSlider.Value;
 
-            IsPlaying = true;
+            m_is_playing = true;
 
-            DisplaySizeSetFlag = false;
+            m_display_sizeset_flag = false;
 
             SeekBarUpdateThread = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(SeekbarUpdateInterval)
+                Interval = TimeSpan.FromMilliseconds(m_seekbar_update_interval)
             };
             SeekBarUpdateThread.Tick += SeekBarUpdateThread_Tick;
 
@@ -76,9 +76,9 @@ namespace VideoGadget
 
             this.Title = filename;
 
-            file_path = filename;
+            m_file_path = filename;
 
-            video_track_info = new VideoTrackInfo(filename, 0, _mediaPlayer.Length);
+            m_video_track_info = new VideoTrackInfo(filename, 0, m_media_player.Length);
 
         }
 
@@ -120,7 +120,7 @@ namespace VideoGadget
                 case MouseButton.Left:
                     printf("left");
                     System.Windows.Point position = e.GetPosition(this);
-                    mousePoint = new Point(position.X, position.Y);
+                    m_mouse_point = new Point(position.X, position.Y);
                     break;
                 case MouseButton.Middle:
                     printf("middle");
@@ -128,10 +128,10 @@ namespace VideoGadget
                     break;
                 case MouseButton.Right:
                     printf("right");
-                    if (_mediaPlayer == null) break;
-                    SwitchButton(ref IsPlaying);
-                    if (IsPlaying) _mediaPlayer.Play();
-                    else _mediaPlayer.Pause();
+                    if (m_media_player == null) break;
+                    SwitchButton(ref m_is_playing);
+                    if (m_is_playing) m_media_player.Play();
+                    else m_media_player.Pause();
                     break;
                 case MouseButton.XButton1:
                     printf("buton1");
@@ -156,8 +156,8 @@ namespace VideoGadget
                 double pX = position.X;
                 double pY = position.Y;
 
-                this.Left += pX - mousePoint.X;
-                this.Top += pY - mousePoint.Y;
+                this.Left += pX - m_mouse_point.X;
+                this.Top += pY - m_mouse_point.Y;
             }
 
         }
@@ -181,7 +181,7 @@ namespace VideoGadget
                 string file_name = "save_" + dt.Year + dt.Month + dt.Day + dt.Hour + dt.Minute + dt.Second + ".png";
 
                 FileInfo file_info = new FileInfo(Directory.GetCurrentDirectory() + @"\" + file_name);
-                _mediaPlayer.TakeSnapshot(1, file_info.ToString(), (uint)Width, (uint)Height);
+                m_media_player.TakeSnapshot(1, file_info.ToString(), (uint)Width, (uint)Height);
 
                 /*
                 // ファイル保存ダイアログを生成します。
@@ -209,14 +209,14 @@ namespace VideoGadget
             else if (e.Key == Key.F)
             {
                 // Fキーで分割
-                video_track_info.SplitVideo(_mediaPlayer.Time);
-                video_track_info.PrintAllChunk();
+                m_video_track_info.SplitVideo(m_media_player.Time);
+                m_video_track_info.PrintAllChunk();
 
             }
             else if (e.Key == Key.O)
             {
                 // OキーでExport
-                video_track_info.Convert(file_path);
+                m_video_track_info.Convert(m_file_path);
             }
 
         }
@@ -256,7 +256,7 @@ namespace VideoGadget
             Properties.Settings.Default.VolumeSettings = (int)VolumeSlider.Value;
             Properties.Settings.Default.Save();
 
-            _mediaPlayer = null;
+            m_media_player = null;
         }
 
         private void SwitchButton(ref bool btn)
@@ -268,8 +268,8 @@ namespace VideoGadget
         /* ボリューム操作関連 */
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (_mediaPlayer == null) return;
-            _mediaPlayer.Volume = (int)e.NewValue;
+            if (m_media_player == null) return;
+            m_media_player.Volume = (int)e.NewValue;
         }
 
         private void VolumeSlider_MouseEnter(object sender, MouseEventArgs e)
@@ -287,14 +287,14 @@ namespace VideoGadget
         /* シークバー操作関連 */
         private void SeekbarSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            if (SeekbarSlider.Opacity == 1.0f && IsSeekbarClick)
+            if (SeekbarSlider.Opacity == 1.0f && m_is_seekbar_click)
             {
-                printf("Seekbar user _mediaPlayer");
+                printf("Seekbar user m_media_player");
 
-                double totalSec = _mediaPlayer.Length; 
+                double totalSec = m_media_player.Length; 
                 double sliderValue = SeekbarSlider.Value;
                 long targetSec = (long)(sliderValue * totalSec / SeekbarSlider.Maximum);
-                _mediaPlayer.Time = targetSec; 
+                m_media_player.Time = targetSec; 
             }
             
         }
@@ -314,48 +314,48 @@ namespace VideoGadget
 
         private void Slider_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            IsSeekbarClick = false;
+            m_is_seekbar_click = false;
 
-            if (IsPlayed)
+            if (m_is_played)
             {
                 // 再生を再開
-                _mediaPlayer.Play();
-                IsPlaying = true;
+                m_media_player.Play();
+                m_is_playing = true;
             }
-            printf("Seekbar user _mediaPlayer up");
+            printf("Seekbar user m_media_player up");
         }
 
         private void Slider_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            IsSeekbarClick = true;
+            m_is_seekbar_click = true;
 
-            IsPlayed = IsPlaying;
+            m_is_played = m_is_playing;
             // 必ず再生を一時停止させる
-            _mediaPlayer.Pause();
-            IsPlaying = false;
+            m_media_player.Pause();
+            m_is_playing = false;
 
-            printf("Seekbar user _mediaPlayer down");
+            printf("Seekbar user m_media_player down");
         }
 
         private void SeekBarUpdateThread_Tick(object sender, EventArgs e)
         {
 
             // ウィンドウのサイズを動画のサイズにする
-            if (_mediaPlayer != null && DisplaySizeSetFlag == false)
+            if (m_media_player != null && m_display_sizeset_flag == false)
             {
                 uint videoWidth = 800;
                 uint videoHeight = 600;
-                _mediaPlayer.Size(0, ref videoWidth, ref videoHeight);
+                m_media_player.Size(0, ref videoWidth, ref videoHeight);
 
                 Application.Current.MainWindow.Width = videoWidth;
                 Application.Current.MainWindow.Height = videoHeight;
 
-                video_track_info = new VideoTrackInfo(file_path, 0, _mediaPlayer.Length);
+                m_video_track_info = new VideoTrackInfo(m_file_path, 0, m_media_player.Length);
 
-                DisplaySizeSetFlag = true;
+                m_display_sizeset_flag = true;
             }
 
-            else if (SeekbarSlider.Opacity == 1.0f && !IsSeekbarClick)
+            else if (SeekbarSlider.Opacity == 1.0f && !m_is_seekbar_click)
             {
                 UpdateSeekBar();
             }
@@ -364,11 +364,11 @@ namespace VideoGadget
 
         private void UpdateSeekBar()
         {
-            if (_mediaPlayer == null) return;
+            if (m_media_player == null) return;
 
             // 動画経過時間に合わせてスライダーを動かす
-            double totalSec = _mediaPlayer.Length;
-            SeekbarSlider.Value = _mediaPlayer.Time / totalSec * SeekbarSlider.Maximum;
+            double totalSec = m_media_player.Length;
+            SeekbarSlider.Value = m_media_player.Time / totalSec * SeekbarSlider.Maximum;
         }
 
 
