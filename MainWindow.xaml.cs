@@ -38,7 +38,7 @@ namespace VideoGadget
             InitializeComponent();
 
             var currentAssembly = Assembly.GetEntryAssembly();
-            var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
+            //var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
 
             Core.Initialize();
         }
@@ -78,7 +78,7 @@ namespace VideoGadget
 
             file_path = filename;
 
-            //video_track_info = new VideoTrackInfo(filename, 0, _mediaPlayer.Length);
+            video_track_info = new VideoTrackInfo(filename, 0, _mediaPlayer.Length);
 
         }
 
@@ -343,8 +343,12 @@ namespace VideoGadget
             // ウィンドウのサイズを動画のサイズにする
             if (_mediaPlayer != null && DisplaySizeSetFlag == false)
             {
-                //Application.Current.MainWindow.Width = _mediaPlayer.SourceProvider.VideoSource.Width;
-                //Application.Current.MainWindow.Height = _mediaPlayer.SourceProvider.VideoSource.Height;
+                uint videoWidth = 800;
+                uint videoHeight = 600;
+                _mediaPlayer.Size(0, ref videoWidth, ref videoHeight);
+
+                Application.Current.MainWindow.Width = videoWidth;
+                Application.Current.MainWindow.Height = videoHeight;
 
                 video_track_info = new VideoTrackInfo(file_path, 0, _mediaPlayer.Length);
 
