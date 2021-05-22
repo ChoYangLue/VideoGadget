@@ -37,10 +37,16 @@ namespace VideoGadget
         {
             InitializeComponent();
 
-            //var currentAssembly = Assembly.GetEntryAssembly();
-            //var currentDirectory = new FileInfo(currentAssembly.Location).DirectoryName;
-
             Core.Initialize();
+
+            // "input-repeat=65535" // 繰り返し再生
+            if (m_media_player != null) m_media_player.Dispose();
+            if (m_lib_vlc != null) m_lib_vlc.Dispose();
+
+            m_lib_vlc = new LibVLC("--input-repeat=65545");
+            m_media_player = new MediaPlayer(m_lib_vlc);
+
+            ControlContainer.MediaPlayer = m_media_player;
         }
 
         private void printf(string txt)
@@ -52,12 +58,6 @@ namespace VideoGadget
 
         private void LoadLocalVideo(string filename)
         {
-
-            // "input-repeat=65535" // 繰り返し再生
-            m_lib_vlc = new LibVLC("--input-repeat=65545");
-            m_media_player = new MediaPlayer(m_lib_vlc);
-
-            ControlContainer.MediaPlayer = m_media_player;
 
             m_media_player.Play(new Media(m_lib_vlc, filename));
             m_media_player.Volume = (int)VolumeSlider.Value;
